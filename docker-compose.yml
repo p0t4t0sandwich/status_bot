@@ -1,0 +1,12 @@
+---
+version: "3.8"
+services:
+  status_bot:
+    image: p0t4t0sandwich/status_bot:latest
+    container_name: status_bot
+    environment:
+      - TZ=UTC
+      - BOT_ID=""                          # The ID of the Discord bot
+    volumes:
+      - /PATH-TO-FOLDER:/app/status_bot    # Path to the file storage of the bot.
+    restart: unless-stopped
