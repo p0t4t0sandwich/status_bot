@@ -17,7 +17,7 @@ import os
 import json
 import bot_library as b
 
-path = "/app/status_bot"
+path = "/status_bot/"
 
 class Status_Bot():
     """
