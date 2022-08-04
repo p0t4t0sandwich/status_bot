@@ -8,5 +8,5 @@ services:
       - TZ=UTC
       - BOT_ID=                            # The ID of the Discord bot
     volumes:
-      - /PATH-TO-FOLDER:/app/status_bot    # Path to the file storage of the bot.
+      - /PATH-TO-FOLDER:/status_bot        # Path to the file storage of the bot.
     restart: unless-stopped
