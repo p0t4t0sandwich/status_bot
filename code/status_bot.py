@@ -17,7 +17,7 @@ import os
 import json
 import bot_library as b
 
-path = "/status_bot/"
+path = "./status_bot/"
 
 class Status_Bot():
     """
@@ -650,12 +650,15 @@ class Status_Bot():
                     self.log(channel, author, content)
                     statement = self.mods(channel, client.user, content)
                     await message.channel.send(embed=statement["embed"])
-                # The !mods command and logging logic.
 
+                # The !dump command and logging logic.
                 if message.content.startswith('!dump'):
                     self.log(channel, author, content)
-                    statement = self.dump(channel, client.user, content)
-                    await message.channel.send("Info dumped to the log.")
+                    if author.id == 409184228392042502:
+                        statement = self.dump(channel, client.user, content)
+                        await message.channel.send("Info dumped to the log.")
+                    else:
+                        await message.channel.send("You are not my master!")
 
             client.run(self.bot_id)
 
