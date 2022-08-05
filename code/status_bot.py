@@ -306,7 +306,9 @@ class Status_Bot():
             if java.online:
                 version = java.version.split(", ")[-1]
                 title = f"Java Server: {address}"
-                description = f"{java.motd.clean[0]}\n{java.motd.clean[1]}\nPlayers: {java.players.online}/{java.players.max}\n{java.software}: {version}"
+                motd = f"{java.motd.clean[0]}"
+                if len(java.motd.clean) == 2: motd += f"\n{java.motd.clean[1]}"
+                description = f"{motd}\nPlayers: {java.players.online}/{java.players.max}\n{java.software}: {version}"
                 image = f"https://api.mcsrvstat.us/icon/{address}"
                 color = 0x65bf65
 
@@ -320,7 +322,9 @@ class Status_Bot():
                 # Logic to list Bedrock server data
                 if bedrock.online:
                     title = f"Bedrock Server: {address}"
-                    description = f"{bedrock.motd.clean[0]}\nPlayers: {bedrock.players.online}/{bedrock.players.max}\n{bedrock.software}: {bedrock.version}"
+                    motd = f"{bedrock.motd.clean[0]}"
+                    if len(bedrock.motd.clean) == 2: motd += f"\n{bedrock.motd.clean[1]}"
+                    description = f"{motd}\nPlayers: {bedrock.players.online}/{bedrock.players.max}\n{bedrock.software}: {bedrock.version}"
                     color = 0x65bf65
 
                     # Log the output
@@ -446,6 +450,7 @@ class Status_Bot():
             # Init variables
             address = content.replace("!plugins","").replace(" ","")
             java = Status_Bot.Java(address)
+            bedrock = Status_Bot.Bedrock(address)
             output = {}
 
             if java.online:
@@ -477,13 +482,24 @@ class Status_Bot():
                     self.json_log(java.dct, channel, "java")
             else:
                 image = "https://cdn.discordapp.com/attachments/1004646221744443523/1004698049970446356/default-64.png"
-                # Error response
-                title = f"Error:"
-                description = f"Whoops, something went wrong,\ncouldn't reach {address}.\t¯\\\\_(\"/)\_/¯"
-                color = 0xbf0f0f
+                
+                # Response for a Bedrock server
+                if bedrock.online:
+                    title = f"Bedrock Server: {address}"
+                    description = "No plugins detected."
+                    color = 0xe6d132
 
-                # Log the output
-                self.log(channel, author, description)
+                    # Log the output
+                    self.log(channel, author, description)
+                    self.json_log(bedrock.dct, channel, "bedrock")
+                else:
+                    # Error response
+                    title = f"Error:"
+                    description = f"Whoops, something went wrong,\ncouldn't reach {address}.\t¯\\\\_(\"/)\_/¯"
+                    color = 0xbf0f0f
+
+                    # Log the output
+                    self.log(channel, author, description)
 
             # Output Discord Embed object
             output["embed"] = discord.Embed(title = title, description = description, color = color)
@@ -506,6 +522,7 @@ class Status_Bot():
             # Init variables
             address = content.replace("!mods","").replace(" ","")
             java = Status_Bot.Java(address)
+            bedrock = Status_Bot.Bedrock(address)
             output = {}
 
             if java.online:
@@ -537,18 +554,49 @@ class Status_Bot():
                     self.json_log(java.dct, channel, "java")
             else:
                 image = "https://cdn.discordapp.com/attachments/1004646221744443523/1004698049970446356/default-64.png"
-                # Error response
-                title = f"Error:"
-                description = f"Whoops, something went wrong,\ncouldn't reach {address}.\t¯\\\\_(\"/)\_/¯"
-                color = 0xbf0f0f
+                
+                # Response for a Bedrock server
+                if bedrock.online:
+                    title = f"Bedrock Server: {address}"
+                    description = "No mods detected."
+                    color = 0xe6d132
 
-                # Log the output
-                self.log(channel, author, description)
+                    # Log the output
+                    self.log(channel, author, description)
+                    self.json_log(bedrock.dct, channel, "bedrock")
+                else:
+                    # Error response
+                    title = f"Error:"
+                    description = f"Whoops, something went wrong,\ncouldn't reach {address}.\t¯\\\\_(\"/)\_/¯"
+                    color = 0xbf0f0f
+
+                    # Log the output
+                    self.log(channel, author, description)
 
             # Output Discord Embed object
             output["embed"] = discord.Embed(title = title, description = description, color = color)
             output["embed"].set_image(url = image)
             return output
+
+        def dump(self, channel, author, content):
+            """
+            Purpose:
+                To return server data collected from the API.
+            Pre-Conditions:
+                :param channel: The discord server the message was sent in (message.guild)
+                :param author: The Bot's name (discord.Client.user)
+                :param content: The message formatted as a string (message.content)
+            Post-Conditions:
+                Dumps the API response to the log.
+            Return:
+                None
+            """
+            # Init variables
+            address = content.replace("!dump","").replace(" ","")
+            description = f"Java Dump:\n{Status_Bot.Java(address).dct}\nBedrock Dump:\n{Status_Bot.Bedrock(address).dct}"
+
+            # Log the output
+            self.log(channel, author, description)
 
         def run(self):
             """
@@ -602,6 +650,12 @@ class Status_Bot():
                     self.log(channel, author, content)
                     statement = self.mods(channel, client.user, content)
                     await message.channel.send(embed=statement["embed"])
+                # The !mods command and logging logic.
+
+                if message.content.startswith('!dump'):
+                    self.log(channel, author, content)
+                    statement = self.dump(channel, client.user, content)
+                    await message.channel.send("Info dumped to the log.")
 
             client.run(self.bot_id)
 
