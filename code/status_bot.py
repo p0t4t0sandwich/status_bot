@@ -12,6 +12,7 @@
 # Credit: Anders G. Jørgensen - spirit55555.dk
 
 import discord
+from discord.ext import commands
 import requests
 import os
 import json
@@ -283,24 +284,22 @@ class Status_Bot():
             new_a.close()
             file.close()
 
-        def status(self, channel, author, content):
+        def status(self, channel, author, address):
             """
             Purpose:
                 To return server data collected from the API.
             Pre-Conditions:
                 :param channel: The discord server the message was sent in (message.guild)
                 :param author: The Bot's name (discord.Client.user)
-                :param content: The message formatted as a string (message.content)
+                :param address: The address user input.
             Post-Conditions:
                 None
             Return:
                 A discord.Embed object
             """
             # Init variables
-            address = content.replace("!status","").replace(" ","")
             java = Status_Bot.Java(address)
             bedrock = Status_Bot.Bedrock(address)
-            output = {}
 
             # Logic to list Java server data
             if java.online:
@@ -340,28 +339,26 @@ class Status_Bot():
                     self.log(channel, author, description)
 
             # Output Discord Embed object
-            output["embed"] = discord.Embed(title = title, description = description, color = color)
-            output["embed"].set_image(url=image)
+            output = discord.Embed(title = title, description = description, color = color)
+            output.set_image(url=image)
             return output
 
-        def players(self, channel, author, content):
+        def players(self, channel, author, address):
             """
             Purpose:
                 To return player data collected from the API.
             Pre-Conditions:
                 :param channel: The discord server the message was sent in (message.guild)
                 :param author: The Bot's name (discord.Client.user)
-                :param content: The message formatted as a string (message.content)
+                :param address: The address user input.
             Post-Conditions:
                 None
             Return:
                 A discord.Embed object
             """
             # Init variables
-            address = content.replace("!players","").replace(" ","")
             java = Status_Bot.Java(address)
             bedrock = Status_Bot.Bedrock(address)
-            output = {}
 
             if java.online:
                 # Logic to list Java players and data
@@ -430,28 +427,26 @@ class Status_Bot():
                     self.log(channel, author, description)
 
             # Output Discord Embed object
-            output["embed"] = discord.Embed(title = title, description = description, color = color)
-            output["embed"].set_image(url = image)
+            output = discord.Embed(title = title, description = description, color = color)
+            output.set_image(url = image)
             return output
 
-        def plugins(self, channel, author, content):
+        def plugins(self, channel, author, address):
             """
             Purpose:
                 To return player data collected from the API.
             Pre-Conditions:
                 :param channel: The discord server the message was sent in (message.guild)
                 :param author: The Bot's name (discord.Client.user)
-                :param content: The message formatted as a string (message.content)
+                :param address: The address user input.
             Post-Conditions:
                 None
             Return:
                 A discord.Embed object
             """
             # Init variables
-            address = content.replace("!plugins","").replace(" ","")
             java = Status_Bot.Java(address)
             bedrock = Status_Bot.Bedrock(address)
-            output = {}
 
             if java.online:
                 # Logic to list Java players and data
@@ -502,28 +497,26 @@ class Status_Bot():
                     self.log(channel, author, description)
 
             # Output Discord Embed object
-            output["embed"] = discord.Embed(title = title, description = description, color = color)
-            output["embed"].set_image(url = image)
+            output = discord.Embed(title = title, description = description, color = color)
+            output.set_image(url = image)
             return output
 
-        def mods(self, channel, author, content):
+        def mods(self, channel, author, address):
             """
             Purpose:
                 To return player data collected from the API.
             Pre-Conditions:
                 :param channel: The discord server the message was sent in (message.guild)
                 :param author: The Bot's name (discord.Client.user)
-                :param content: The message formatted as a string (message.content)
+                :param address: The address user input.
             Post-Conditions:
                 None
             Return:
                 A discord.Embed object
             """
             # Init variables
-            address = content.replace("!mods","").replace(" ","")
             java = Status_Bot.Java(address)
             bedrock = Status_Bot.Bedrock(address)
-            output = {}
 
             if java.online:
                 # Logic to list Java players and data
@@ -574,25 +567,24 @@ class Status_Bot():
                     self.log(channel, author, description)
 
             # Output Discord Embed object
-            output["embed"] = discord.Embed(title = title, description = description, color = color)
-            output["embed"].set_image(url = image)
+            output = discord.Embed(title = title, description = description, color = color)
+            output.set_image(url = image)
             return output
 
-        def dump(self, channel, author, content):
+        def dump(self, channel, author, address):
             """
             Purpose:
                 To return server data collected from the API.
             Pre-Conditions:
                 :param channel: The discord server the message was sent in (message.guild)
                 :param author: The Bot's name (discord.Client.user)
-                :param content: The message formatted as a string (message.content)
+                :param address: The address user input.
             Post-Conditions:
                 Dumps the API response to the log.
             Return:
                 None
             """
             # Init variables
-            address = content.replace("!dump","").replace(" ","")
             description = f"Java Dump:\n{Status_Bot.Java(address).dct}\nBedrock Dump:\n{Status_Bot.Bedrock(address).dct}"
 
             # Log the output
@@ -609,56 +601,82 @@ class Status_Bot():
             Return:
                 None
             """
-            client = discord.Client()
+            client = commands.Bot(command_prefix="$")
 
             # Startup response.
             @client.event
             async def on_ready():
                 b.bot_logger(path, "status_bot", f'We have logged in as {client.user}')
 
-            # on_message() event handling and responses.
-            @client.event
-            async def on_message(message):
-                # Skips reading messages written by the bot.
-                if message.author == client.user:
-                    return
+            @client.command()
+            async def null(ctx):
+                channel = ctx.guild.name
+                author = ctx.author
+                content = ctx.content
+                await ctx.send("null")
 
-                channel = message.guild.name
-                author = message.author
-                content = message.content
+            # The !status command and logging logic.
+            @client.command()
+            async def status(ctx, address):
+                channel = ctx.guild.name
+                author = ctx.author
+                content = ctx.message.content
 
-                # The !status command and logging logic.
-                if message.content.startswith('!status'):
-                    self.log(channel, author, content)
-                    statement = self.status(channel, client.user, content)
-                    await message.channel.send(embed=statement["embed"])
+                self.log(channel, author, content)
+                statement = self.status(channel, client.user, address)
 
-                # The !players command and logging logic.
-                if message.content.startswith('!players'):
-                    self.log(channel, author, content)
-                    statement = self.players(channel, client.user, content)
-                    await message.channel.send(embed=statement["embed"])
+                await ctx.send(embed=statement)
+            
+            # The !players command and logging logic.
+            @client.command()
+            async def players(ctx, address):
+                channel = ctx.guild.name
+                author = ctx.author
+                content = ctx.message.content
 
-                # The !plugins command and logging logic.
-                if message.content.startswith('!plugins'):
-                    self.log(channel, author, content)
-                    statement = self.plugins(channel, client.user, content)
-                    await message.channel.send(embed=statement["embed"])
+                self.log(channel, author, content)
+                statement = self.players(channel, client.user, address)
 
-                # The !mods command and logging logic.
-                if message.content.startswith('!mods'):
-                    self.log(channel, author, content)
-                    statement = self.mods(channel, client.user, content)
-                    await message.channel.send(embed=statement["embed"])
+                await ctx.send(embed=statement)
+            
+            # The !plugins command and logging logic.
+            @client.command()
+            async def plugins(ctx, address):
+                channel = ctx.guild.name
+                author = ctx.author
+                content = ctx.message.content
 
-                # The !dump command and logging logic.
-                if message.content.startswith('!dump'):
-                    self.log(channel, author, content)
-                    if author.id == 409184228392042502:
-                        statement = self.dump(channel, client.user, content)
-                        await message.channel.send("Info dumped to the log.")
-                    else:
-                        await message.channel.send("You are not my master!")
+                self.log(channel, author, content)
+                statement = self.plugins(channel, client.user, address)
+
+                await ctx.send(embed=statement)
+
+            # The !mods command and logging logic.
+            @client.command()
+            async def mods(ctx, address):
+                channel = ctx.guild.name
+                author = ctx.author
+                content = ctx.message.content
+
+                self.log(channel, author, content)
+                statement = self.mods(channel, client.user, address)
+
+                await ctx.send(embed=statement)
+            
+            # The !dump command and logging logic.
+            @client.command()
+            async def dump(ctx, address):
+                channel = ctx.guild.name
+                author = ctx.author
+                content = ctx.message.content
+
+                self.log(channel, author, content)
+
+                if author.id == 409184228392042502:
+                    statement = self.dump(channel, client.user, content)
+                    await ctx.send("Info dumped to the log.")
+                else:
+                    await ctx.send("You are not my master!")
 
             client.run(self.bot_id)
 
