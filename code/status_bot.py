@@ -601,7 +601,7 @@ class Status_Bot():
             Return:
                 None
             """
-            client = commands.Bot(command_prefix="$")
+            client = commands.Bot(command_prefix="!")
 
             # Startup response.
             @client.event
