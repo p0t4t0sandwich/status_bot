@@ -608,13 +608,6 @@ class Status_Bot():
             async def on_ready():
                 b.bot_logger(path, "status_bot", f'We have logged in as {client.user}')
 
-            @client.command()
-            async def null(ctx):
-                channel = ctx.guild.name
-                author = ctx.author
-                content = ctx.content
-                await ctx.send("null")
-
             # The !status command and logging logic.
             @client.command()
             async def status(ctx, address):
