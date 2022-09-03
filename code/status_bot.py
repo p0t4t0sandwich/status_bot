@@ -31,8 +31,6 @@ class Status_Bot():
     Return:
         None
     """
-    def __init__(self):
-        self.cheese = True
 
     class Server():
         """
@@ -132,7 +130,9 @@ class Status_Bot():
                 if "protocol" in self.dct.keys(): self.protocol = self.dct["protocol"]
                 else: self.protocol = "N/A"
                 if "hostname" in self.dct.keys(): self.hostname = self.dct["hostname"]
-                else: self.hostname = "N/A"
+                else:
+                    self.hostname = self.dct["ip"] + ":" + str(self.dct["port"])
+                    self.dct["hostname"] = self.dct["ip"]
                 if "icon" in self.dct.keys(): self.icon = self.dct["icon"]
                 else: self.icon = "N/A"
                 if "software" in self.dct.keys(): self.software = self.dct["software"]
@@ -220,7 +220,9 @@ class Status_Bot():
                 if "protocol" in self.dct.keys(): self.protocol = self.dct["protocol"]
                 else: self.protocol = "N/A"
                 if "hostname" in self.dct.keys(): self.hostname = self.dct["hostname"]
-                else: self.hostname = "N/A"
+                else:
+                    self.hostname = self.dct["ip"] + ":" + str(self.dct["port"])
+                    self.dct["hostname"] = self.dct["ip"]
                 if "software" in self.dct.keys(): self.software = self.dct["software"]
                 else: self.software = "N/A"
                 if "map" in self.dct.keys(): self.map = self.dct["map"]
@@ -304,7 +306,7 @@ class Status_Bot():
             # Logic to list Java server data
             if java.online:
                 version = java.version.split(", ")[-1]
-                title = f"Java Server: {address}"
+                title = f"Java Server: {java.hostname}"
                 motd = f"{java.motd.clean[0]}"
                 if len(java.motd.clean) == 2: motd += f"\n{java.motd.clean[1]}"
                 description = f"{motd}\nPlayers: {java.players.online}/{java.players.max}\n{java.software}: {version}"
@@ -320,7 +322,7 @@ class Status_Bot():
                 
                 # Logic to list Bedrock server data
                 if bedrock.online:
-                    title = f"Bedrock Server: {address}"
+                    title = f"Bedrock Server: {bedrock.hostname}"
                     motd = f"{bedrock.motd.clean[0]}"
                     if len(bedrock.motd.clean) == 2: motd += f"\n{bedrock.motd.clean[1]}"
                     description = f"{motd}\nPlayers: {bedrock.players.online}/{bedrock.players.max}\n{bedrock.software}: {bedrock.version}"
@@ -364,7 +366,7 @@ class Status_Bot():
                 # Logic to list Java players and data
                 if java.players.online > 0:
                     # Initializing the title and description
-                    title = f"Java Server: {address}"
+                    title = f"Java Server: {java.hostname}"
                     description = f"Players ({java.players.online}/{java.players.max}): "
 
                     # Add Players to description
@@ -385,7 +387,7 @@ class Status_Bot():
                     self.log(channel, author, description)
                     self.json_log(java.dct, channel, "java")
                 else:
-                    title = f"Java Server: {address}"
+                    title = f"Java Server: {java.hostname}"
                     description = "No players online."
                     image = f"https://api.mcsrvstat.us/icon/{address}"
                     color = 0xe6d132
@@ -400,7 +402,7 @@ class Status_Bot():
                 if bedrock.online:
                     if bedrock.players.online > 0:
                         # Bedrock player info
-                        title = f"Bedrock Server: {address}"
+                        title = f"Bedrock Server: {bedrock.hostname}"
                         description = f"Players ({bedrock.players.online}/{bedrock.players.max}): "
                         for i in bedrock.players.list:
                             description += i + ", "
@@ -410,7 +412,7 @@ class Status_Bot():
                         self.log(channel, author, description)
                         self.json_log(bedrock.dct, channel, "bedrock")
                     else:
-                        title = f"Bedrock Server: {address}"
+                        title = f"Bedrock Server: {bedrock.hostname}"
                         description = "No players online."
                         color = 0xe6d132
 
@@ -452,7 +454,7 @@ class Status_Bot():
                 # Logic to list Java players and data
                 if java.plugins != ["N/A"]:
                     # Initializing the title and description
-                    title = f"Java Server: {address}"
+                    title = f"Java Server: {java.hostname}"
                     description = ""
 
                     # Add Plugins to description
@@ -467,7 +469,7 @@ class Status_Bot():
                     self.log(channel, author, description)
                     self.json_log(java.dct, channel, "java")
                 else:
-                    title = f"Java Server: {address}"
+                    title = f"Java Server: {java.hostname}"
                     description = "No plugins detected."
                     image = f"https://api.mcsrvstat.us/icon/{address}"
                     color = 0xe6d132
@@ -480,7 +482,7 @@ class Status_Bot():
                 
                 # Response for a Bedrock server
                 if bedrock.online:
-                    title = f"Bedrock Server: {address}"
+                    title = f"Bedrock Server: {bedrock.hostname}"
                     description = "No plugins detected."
                     color = 0xe6d132
 
@@ -522,7 +524,7 @@ class Status_Bot():
                 # Logic to list Java players and data
                 if java.mods != ["N/A"]:
                     # Initializing the title and description
-                    title = f"Java Server: {address}"
+                    title = f"Java Server: {java.hostname}"
                     description = "Mods: "
 
                     # Add Mods to description
@@ -537,7 +539,7 @@ class Status_Bot():
                     self.log(channel, author, description)
                     self.json_log(java.dct, channel, "java")
                 else:
-                    title = f"Java Server: {address}"
+                    title = f"Java Server: {java.hostname}"
                     description = "No mods detected."
                     image = f"https://api.mcsrvstat.us/icon/{address}"
                     color = 0xe6d132
@@ -550,7 +552,7 @@ class Status_Bot():
                 
                 # Response for a Bedrock server
                 if bedrock.online:
-                    title = f"Bedrock Server: {address}"
+                    title = f"Bedrock Server: {bedrock.hostname}"
                     description = "No mods detected."
                     color = 0xe6d132
 
